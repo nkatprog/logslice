@@ -50,3 +50,27 @@ def write_entries(
         dest.write("\n")
         count += 1
     return count
+
+
+def write_summary(
+    entries: Iterable[LogEntry],
+    dest: TextIO = sys.stdout,
+) -> None:
+    """Write a severity-count summary table to *dest*.
+
+    Iterates over *entries* once and prints the number of log lines
+    observed for each severity level, sorted from most to least frequent.
+    """
+    counts: dict[str, int] = {}
+    for entry in entries:
+        key = entry.severity or "UNKNOWN"
+        counts[key] = counts.get(key, 0) + 1
+
+    if not counts:
+        dest.write("No entries.\n")
+        return
+
+    dest.write(f"{'Severity':<12}  {'Count':>6}\n")
+    dest.write(f"{'-' * 12}  {'-' * 6}\n")
+    for severity, count in sorted(counts.items(), key=lambda kv: kv[1], reverse=True):
+        dest.write(f"{severity:<12}  {count:>6}\n")
